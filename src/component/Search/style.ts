@@ -2,7 +2,7 @@ import styled from "styled-components/native";
 import listStyled from "../../styles/globalStyles";
 
 export const Container = styled.ImageBackground`
-  min-height: 240px;
+  height: 240px;
   padding: 20px;
   justify-content: center;
   align-items: center;
@@ -34,7 +34,7 @@ export const Spinner = styled.View`
   align-items: center;
 `;
 
-export const ContainerMenu = styled.TouchableOpacity`
+export const ContainerMenu = styled.View`
   width: 100%;
   padding: 8px;
 

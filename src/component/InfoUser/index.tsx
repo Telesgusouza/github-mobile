@@ -2,21 +2,24 @@ import { View, Text } from "react-native";
 
 import * as Styled from "./style";
 import { useState } from "react";
+import { useSelector } from "react-redux";
+import { RootReducer } from "../../api/redux/store";
 const imgTest = require("../../../assets/image/noUser.webp");
 
 export default function () {
   const [options, setOptions] = useState<[string, number | string]>(["all", 0]);
 
-  function handleOption(option?: [string, number | string]) {
-    if (options[0] !== "all" && !!option) {
-      setOptions(option);
-    } else {
-    }
-  }
+  const { dataUser } = useSelector(
+    (rootReducer: RootReducer) => rootReducer.useListRepo
+  );
+
 
   return (
     <Styled.Container>
-      <Styled.PhotoUser source={imgTest} alt="photo user" />
+      <Styled.PhotoUser
+        source={dataUser.avatar ? { uri: dataUser.avatar } : imgTest}
+        alt="photo user"
+      />
 
       {options[0] === "all" ? (
         <>
@@ -32,7 +35,7 @@ export default function () {
             >
               Followers
             </Styled.OptionText>
-            <Styled.OptionText>27839</Styled.OptionText>
+            <Styled.OptionText>{dataUser.followers}</Styled.OptionText>
           </Styled.OptionsInfo>
 
           <Styled.OptionsInfo
@@ -47,7 +50,7 @@ export default function () {
             >
               Following
             </Styled.OptionText>
-            <Styled.OptionText>27839</Styled.OptionText>
+            <Styled.OptionText>{dataUser.following}</Styled.OptionText>
           </Styled.OptionsInfo>
 
           <Styled.OptionsInfo
@@ -61,7 +64,7 @@ export default function () {
             >
               Location
             </Styled.OptionText>
-            <Styled.OptionText>27839</Styled.OptionText>
+            <Styled.OptionText>{dataUser.location}</Styled.OptionText>
           </Styled.OptionsInfo>
         </>
       ) : (
@@ -85,44 +88,3 @@ export default function () {
     </Styled.Container>
   );
 }
-
-/*
-
-ainda está dando erro, o código está da seguinte maneira, o OptionsInfo tem que ter o width de acordo com o tamanho do conteudo
-
-<Styled.OptionsInfo>
-          <Text
-            style={{
-              color: "#CDD5E0",
-              paddingVertical: 5,
-              paddingHorizontal: 20,
-              borderRightColor: "#4A5567",
-              borderRightWidth: 2,
-            }}
-          >
-            Followers
-          </Text>
-          <Text
-            style={{
-              color: "#CDD5E0",
-              paddingVertical: 5,
-              paddingHorizontal: 20,
-            }}
-          >
-            27839
-          </Text>
-        </Styled.OptionsInfo>
-
-
-export const OptionsInfo = styled.View`
-  align-items: flex-start;
-  padding: 8px 0;
-  flex-direction: row;
-
-  background-color: ${ListStyles.gray};
-`;
-
-
-
-
-*/

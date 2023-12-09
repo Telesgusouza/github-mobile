@@ -3,22 +3,30 @@ import {
   Image,
   View,
   Text,
+  Alert,
   Dimensions,
   ActivityIndicator,
+  NativeSyntheticEvent,
+  TextInputSubmitEditingEventData,
 } from "react-native";
 import { useState } from "react";
+import { useDispatch } from "react-redux";
+import axios from "axios";
 
 import * as Styled from "./style";
-import LogoSearch from "../../../assets/image/Search.svg";
+import IconSearch from "../../../assets/image/Search.svg";
+import IconClose from "../../../assets/image/closed.svg";
+
+import { dataUser, listData } from "../../api/redux/useListRepo/reducer";
+import { IRepo, IRepoApi } from "../../api/interface";
 const imgBg = require("../../../assets/image/heroImageGithubProfile.png");
+const imgNoUser = require("../../../assets/image/noUser.webp");
 
 export default function () {
-  const [toggleList] = useState(false);
   const [loading, setLoading] = useState<boolean>(false);
 
-
-///
-const [input, setInput] = useState<string>("");
+  ///
+  const [input, setInput] = useState<string>("");
 
   const [listOptionRepo, setListOptionRepo] = useState<{
     avatar: string;
@@ -31,11 +39,12 @@ const [input, setInput] = useState<string>("");
   } | null>(null);
 
   const [listToggle, setListToggle] = useState<boolean>(false);
-  const [loading, setLoading] = useState<boolean>(true);
 
   const dispatch = useDispatch();
 
-  async function handleSearch(e: React.FormEvent) {
+  async function handleSearch(
+    e: NativeSyntheticEvent<TextInputSubmitEditingEventData>
+  ) {
     e.preventDefault();
 
     if (input.trim().length > 0) {
@@ -64,14 +73,11 @@ const [input, setInput] = useState<string>("");
           console.error("Error > " + err);
           setListToggle(false);
           setLoading(false);
-
-          toast.error("não foi possivel encontrar usuário");
+          Alert.alert("Erro ao trazer usuario", "Tente novamente mais tarde");
         })
         .finally(() => {
           setLoading(false);
         });
-    } else {
-      // toast.error("Preencha o campo hummmm");
     }
   }
 
@@ -83,7 +89,6 @@ const [input, setInput] = useState<string>("");
           const listRepo: IRepo[] = [];
 
           resp.data.forEach((repo: IRepoApi) => {
-
             const date = new Date(repo.updated_at);
 
             const ano = date.getFullYear();
@@ -104,15 +109,23 @@ const [input, setInput] = useState<string>("");
 
             listRepo.push(data);
           });
+
           dispatch(listData(listRepo));
           setListToggle(false);
+          setInput("");
         })
         .catch((err) => {
           console.error("Error > " + err);
-          toast.error("Erro ao trazer supositórios de usuario");
+          Alert.alert(
+            "Erro ao trazer supositórios de usuario",
+            "Ocorreu um erro, tente novamente mais tarde"
+          );
         });
     } else {
-      toast.error("Preencha o campo");
+      Alert.alert(
+        "Preencha o campo",
+        "preencha o campo para completar a pesquisa"
+      );
     }
   }
 
@@ -121,30 +134,52 @@ const [input, setInput] = useState<string>("");
     setListToggle(false);
   }
 
-///
+  ///
   return (
     <Styled.Container source={imgBg}>
       <Styled.SearchContainer>
-        <Styled.Search placeholder="username" />
+        <Styled.Search
+          placeholder="username"
+          value={input}
+          onChangeText={(e) => setInput(e)}
+          onSubmitEditing={handleSearch}
+        />
 
-        <TouchableOpacity
-          style={{ position: "absolute", left: 10, zIndex: 99 }}
-        >
-          <LogoSearch width={30} height={30} />
-        </TouchableOpacity>
+        <View style={{ position: "absolute", left: 10, zIndex: 99 }}>
+          {listToggle ? (
+            <TouchableOpacity onPress={handleClose}>
+              <IconClose width={24} height={24} />
+            </TouchableOpacity>
+          ) : (
+            <>
+              <IconSearch width={30} height={30} />
+            </>
+          )}
+        </View>
 
-        {toggleList && (
+        {listToggle && (
           <Styled.ContainerMenu>
             {loading ? (
               <>
                 <Styled.Spinner>
-                  <ActivityIndicator animating={true} size={32} color={"#3662e3"} />
+                  <ActivityIndicator
+                    animating={true}
+                    size={32}
+                    color={"#3662e3"}
+                  />
                 </Styled.Spinner>
               </>
             ) : (
-              <>
+              <TouchableOpacity
+                style={{ flexDirection: "row" }}
+                onPress={handleSelectUser}
+              >
                 <Image
-                  source={imgBg}
+                  source={{
+                    uri: listOptionRepo?.avatar
+                      ? listOptionRepo.avatar
+                      : imgNoUser,
+                  }}
                   alt="photo user"
                   style={{
                     width: 70,
@@ -154,6 +189,7 @@ const [input, setInput] = useState<string>("");
                     marginRight: 12,
                   }}
                 />
+
                 <View>
                   <Text
                     style={{
@@ -163,7 +199,7 @@ const [input, setInput] = useState<string>("");
                     }}
                     numberOfLines={1}
                   >
-                    Github Lorem ipsum dolor sit amet.
+                    {listOptionRepo?.title}
                   </Text>
                   <Text
                     style={{
@@ -173,10 +209,10 @@ const [input, setInput] = useState<string>("");
                     }}
                     numberOfLines={2}
                   >
-                    Lorem ipsum dolor sit amet.
+                    {listOptionRepo?.description}
                   </Text>
                 </View>
-              </>
+              </TouchableOpacity>
             )}
           </Styled.ContainerMenu>
         )}

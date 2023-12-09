@@ -18,6 +18,8 @@ export const PhotoUser = styled.Image`
   border: 8px solid ${ListStyles.lightGray};
   border-radius: 10px;
 
+  background-color: #e8e8e8;
+
   object-fit: cover;
 `;
 

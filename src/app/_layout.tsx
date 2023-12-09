@@ -4,7 +4,7 @@ import Providers from "../api/redux/Providers";
 export default function Layout() {
   return (
     <Providers>
-      <Stack>
+      <Stack initialRouteName="index" >
         <Stack.Screen
           name="index"
           options={{ title: "home", headerShown: false }}
